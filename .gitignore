@@ -1,0 +1,23 @@
+# --- Data & artifacts (regenerate via `python run_pipeline.py`) ---
+data/raw/
+data/processed/
+outputs/*.json
+outputs/*.csv
+outputs/*.joblib
+outputs/*.md
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Streamlit ---
+.streamlit/secrets.toml
