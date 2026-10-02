@@ -147,7 +147,7 @@ with left:
     fig.update_layout(xaxis_title="Late-delivery rate (%)",
                       yaxis_title="", height=380,
                       xaxis_range=[0, 110], showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 region_rates = (rates[rates["dimension"] == "Region"]
                 .sort_values("late_rate", ascending=True).tail(12))
@@ -159,7 +159,7 @@ with right:
     fig.update_layout(xaxis_title="Late-delivery rate (%)",
                       yaxis_title="", height=380,
                       xaxis_range=[0, 70], showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 st.divider()
 
@@ -174,7 +174,7 @@ with fi_left:
     fig.update_traces(texttemplate="%{text:.3f}", textposition="outside")
     fig.update_layout(xaxis_title="Importance (Gini)", yaxis_title="",
                       height=420, showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with fi_right:
     st.subheader("Model comparison (test set)")
@@ -183,7 +183,7 @@ with fi_right:
                ("accuracy", "precision", "recall", "f1")}
         for name, m in metrics["models"].items()
     }).T
-    st.dataframe(comp.style.format("{:.4f}"), use_container_width=True)
+    st.dataframe(comp.style.format("{:.4f}"), width="stretch")
 
     st.subheader("Top 3 bottleneck segments")
     bottlenecks = pd.read_csv(

@@ -21,3 +21,6 @@ Thumbs.db
 
 # --- Streamlit ---
 .streamlit/secrets.toml
+streamlit_out.log
+streamlit_err.log
+streamlit.pid

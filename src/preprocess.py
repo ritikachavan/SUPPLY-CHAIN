@@ -127,12 +127,20 @@ def add_date_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # --------------------------------------------------------------------------- #
-# Step 4 — missing values
+# Step 4 — missing values & whitespace
 # --------------------------------------------------------------------------- #
 def handle_missing(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Median-impute numeric columns, mode-impute categorical columns."""
+    """Trim stray whitespace, then impute any remaining missing values.
+
+    Numeric columns get a median fill; categorical columns get the mode.
+    """
     df = df.copy()
     report: dict[str, int] = {}
+
+    # The raw CSV contains values like 'Cameras ' / 'Baby ' — trim them so
+    # one-hot encoding and dashboard lookups see consistent labels.
+    for col in df.select_dtypes(include=["object"]).columns:
+        df[col] = df[col].str.strip()
 
     for col in df.columns:
         n_missing = int(df[col].isna().sum())
