@@ -24,6 +24,7 @@ MODEL_PATH = OUTPUT_DIR / "model.joblib"
 META_PATH = OUTPUT_DIR / "preprocess_meta.json"
 IMPORTANCE_PATH = OUTPUT_DIR / "feature_importance.csv"
 BOTTLENECK_PATH = OUTPUT_DIR / "bottlenecks.csv"
+SEGMENT_RATES_PATH = OUTPUT_DIR / "segment_rates.csv"
 
 # --------------------------------------------------------------------------- #
 # Dataset sources

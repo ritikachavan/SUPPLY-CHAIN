@@ -206,7 +206,9 @@ def encode_and_persist(cleaned: pd.DataFrame, info: dict, save: bool = True) -> 
 
     # Defaults used by the dashboard to fill unspecified lookup inputs.
     defaults: dict[str, object] = {}
-    for col in NUMERIC_FEATURES + ["order_month", "order_day_of_week", "order_hour"]:
+    for col in (NUMERIC_FEATURES
+                + ["order_month", "order_year", "order_day_of_week",
+                   "order_is_weekend", "order_hour"]):
         if col in cleaned.columns:
             defaults[col] = float(cleaned[col].median())
     for col in CATEGORICAL_FEATURES:

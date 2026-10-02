@@ -25,6 +25,7 @@ from src.config import (  # noqa: E402
     MARKET_COL,
     MIN_ORDERS_FOR_SEGMENT,
     REGION_COL,
+    SEGMENT_RATES_PATH,
     SHIPPING_MODE_COL,
     TARGET_COL,
 )
@@ -159,9 +160,21 @@ def run_eda(df: pd.DataFrame, save: bool = True) -> pd.DataFrame:
     for path in charts:
         print(f"[chart] Saved {path}")
 
+    # Persist one tidy table with every grouped rate (used by the dashboard).
     if save:
         BOTTLENECK_PATH.parent.mkdir(parents=True, exist_ok=True)
         bottlenecks.to_csv(BOTTLENECK_PATH, index=False)
+
+        all_rates = []
+        for column, label in ANALYSIS_DIMENSIONS.items():
+            rates = late_rate_by(df, column)
+            rates.insert(0, "dimension", label)
+            rates = rates.rename(columns={column: "segment"})
+            all_rates.append(rates)
+        pd.concat(all_rates, ignore_index=True).to_csv(
+            SEGMENT_RATES_PATH, index=False
+        )
+        print(f"[save] Segment rates -> {SEGMENT_RATES_PATH}")
 
     return bottlenecks
 
