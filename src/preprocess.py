@@ -176,8 +176,12 @@ def encode_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
 # --------------------------------------------------------------------------- #
 # Orchestration
 # --------------------------------------------------------------------------- #
-def run_preprocessing(save: bool = True) -> tuple[pd.DataFrame, dict]:
-    """Run the full cleaning pipeline and persist the modelling table."""
+def build_cleaned() -> tuple[pd.DataFrame, dict]:
+    """Load raw data and run every cleaning step *except* encoding.
+
+    Returns the cleaned frame with the original (human-readable) categorical
+    columns intact — this is what the EDA/bottleneck analysis operates on.
+    """
     df = load_raw()
 
     df, target_stats = create_target(df)
@@ -188,25 +192,35 @@ def run_preprocessing(save: bool = True) -> tuple[pd.DataFrame, dict]:
     # Sanity: no NaNs may remain before encoding.
     assert df.isna().sum().sum() == 0, "NaNs remain after imputation"
 
-    model_df, feature_columns = encode_features(df)
+    info = {
+        "dropped_columns": dropped,
+        "missing_imputed": missing_report,
+        "target_stats": target_stats,
+    }
+    return df, info
+
+
+def encode_and_persist(cleaned: pd.DataFrame, info: dict, save: bool = True) -> tuple[pd.DataFrame, dict]:
+    """One-hot encode the cleaned frame, persist table + metadata."""
+    model_df, feature_columns = encode_features(cleaned)
 
     # Defaults used by the dashboard to fill unspecified lookup inputs.
     defaults: dict[str, object] = {}
     for col in NUMERIC_FEATURES + ["order_month", "order_day_of_week", "order_hour"]:
-        if col in df.columns:
-            defaults[col] = float(df[col].median())
+        if col in cleaned.columns:
+            defaults[col] = float(cleaned[col].median())
     for col in CATEGORICAL_FEATURES:
-        defaults[col] = str(df[col].mode().iloc[0])
+        defaults[col] = str(cleaned[col].mode().iloc[0])
 
     meta = {
         "feature_columns": feature_columns,
         "categorical_features": CATEGORICAL_FEATURES,
-        "numeric_features": [c for c in NUMERIC_FEATURES if c in df.columns],
+        "numeric_features": [c for c in NUMERIC_FEATURES if c in cleaned.columns],
         "defaults": defaults,
-        "dropped_columns": dropped,
-        "missing_imputed": missing_report,
+        "dropped_columns": info["dropped_columns"],
+        "missing_imputed": info["missing_imputed"],
         "target": TARGET_COL,
-        "target_stats": target_stats,
+        "target_stats": info["target_stats"],
         "random_state": RANDOM_STATE,
     }
 
@@ -220,6 +234,12 @@ def run_preprocessing(save: bool = True) -> tuple[pd.DataFrame, dict]:
         print(f"[save] Metadata       -> {META_PATH}")
 
     return model_df, meta
+
+
+def run_preprocessing(save: bool = True) -> tuple[pd.DataFrame, dict]:
+    """Run the full cleaning pipeline and persist the modelling table."""
+    cleaned, info = build_cleaned()
+    return encode_and_persist(cleaned, info, save=save)
 
 
 if __name__ == "__main__":
