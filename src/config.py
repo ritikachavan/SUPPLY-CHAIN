@@ -104,7 +104,8 @@ DROP_COLUMNS = [
     # --- misc / redundant ---
     "Order Status",           # order-lifecycle status, unrelated to lateness
     "Latitude", "Longitude",  # redundant with Market / Order Region
-    "order date (DateOrders)",  # consumed by date feature engineering
+    # NOTE: "order date (DateOrders)" is intentionally NOT listed here —
+    # add_date_features() consumes it and turns it into calendar features.
 ]
 
 # Columns required for the target / EDA to be computable.
